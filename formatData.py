@@ -34,31 +34,32 @@ def genStartJson(row):
     Road_Speed_Limit = row[29]
 
     start = {
-        "TimeZone": Timezone,
-        "Lat": Lat,
-        "Lon": Lon,
-        "Bearing": Bearing,
-        "Num_Sat": Num_Sat,
-        "Fix": Fix,
-        "Average_X": Average_X,
-        "Average_Y": Average_Y,
-        "Average_Z": Average_Z,
-        "Readings_X_List": Readings_X_List,
-        "Readings_Y_List": Readings_Y_List,
-        "Readings_Z_List": Reading_Z_List,
-        "Average_Lon": Average_Lon,
-        "Average_Lat": Average_Lat,
-        "Average_Ver": Average_Ver,
-        "Readings_Lon_List": Readings_Lon_List,
-        "Readings_Lat_Lst": Readings_Lat_List,
-        "Readings_Ver_List": Readings_Ver_List,
-        "Engine_Coolant_Temp": Engine_Coolant_Temp,
-        "Engine_Rpm": Engine_Rpm,
-        "Speed": Speed,
-        "Mafr": Mafr,
-        "Road_Type": Road_Type
+        'TimeZone': Timezone,
+        'Lat': Lat,
+        'Lon': Lon,
+        'Bearing': Bearing,
+        'Num_Sat': Num_Sat,
+        'Fix': Fix,
+        'Average_X': Average_X,
+        'Average_Y': Average_Y,
+        'Average_Z': Average_Z,
+        'Readings_X_List': Readings_X_List,
+        'Readings_Y_List': Readings_Y_List,
+        'Readings_Z_List': Reading_Z_List,
+        'Average_Lon': Average_Lon,
+        'Average_Lat': Average_Lat,
+        'Average_Ver': Average_Ver,
+        'Readings_Lon_List': Readings_Lon_List,
+        'Readings_Lat_Lst': Readings_Lat_List,
+        'Readings_Ver_List': Readings_Ver_List,
+        'Engine_Coolant_Temp': Engine_Coolant_Temp,
+        'Engine_Rpm': Engine_Rpm,
+        'Speed': Speed,
+        'Mafr': Mafr,
+        'Road_Type': Road_Type
     }
-    return json.dump(start) 
+    return start
+
 def genEndJson(arr):
     Timezone = row[5]
     Record_Type = row[6]
@@ -87,7 +88,7 @@ def genEndJson(arr):
     Road_Speed_Limit = row[29]
 
     end = {
-        "Timezone": Timezone,
+        'Timezone': Timezone,
         'Lat': Lat,
         'Lon': Lon,
         'Bearing': Bearing,
@@ -112,7 +113,7 @@ def genEndJson(arr):
         'Road_Type': Road_Type,
         'Raod_Speed_Limit': Road_Speed_Limit,
     }
-    json.dump(end)
+    return end
 
 def genDriveJson(row):
     Timestamp_GMT = row[4]
@@ -142,38 +143,43 @@ def genDriveJson(row):
     Road_Type = row[28]
     Road_Speed_Limit = row[29]
     
-    row: {
-            "TimeZone": Timezone,
-            "Lat": Lat,
-            "Lon": Lon,
-            "Bearing": Bearing,
-            "Num_Sat": Num_Sat,
-            "Fix": Fix,
-            "Average_X": Average_X,
-            "Average_Y": Average_Y,
-            "Average_Z": Average_Z,
-            "Readings_X_List": Readings_X_List,
-            "Readings_Y_List": Readings_Y_List,
-            "Readings_Z_List": Reading_Z_List,
-            "Average_Lon": Average_Lon,
-            "Average_Lat": Average_Lat,
-            "Average_Ver": Average_Ver,
-            "Readings_Lon_List": Readings_Lon_List,
-            "Readings_Lat_Lst": Readings_Lat_List,
-            "Readings_Ver_List": Readings_Ver_List,
-            "Engine_Coolant_Temp": Engine_Coolant_Temp,
-            "Engine_Rpm": Engine_Rpm,
-            "Speed": Speed,
-            "Mafr": Mafr,
-            "Road_Type": Road_Type
+    row = {
+        Timestamp_GMT: {
+            'TimeZone': Timezone,
+            'Lat': Lat,
+            'Lon': Lon,
+            'Bearing': Bearing,
+            'Num_Sat': Num_Sat,
+            'Fix': Fix,
+            'Average_X': Average_X,
+            'Average_Y': Average_Y,
+            'Average_Z': Average_Z,
+            'Readings_X_List': Readings_X_List,
+            'Readings_Y_List': Readings_Y_List,
+            'Readings_Z_List': Reading_Z_List,
+            'Average_Lon': Average_Lon,
+            'Average_Lat': Average_Lat,
+            'Average_Ver': Average_Ver,
+            'Readings_Lon_List': Readings_Lon_List,
+            'Readings_Lat_Lst': Readings_Lat_List,
+            'Readings_Ver_List': Readings_Ver_List,
+            'Engine_Coolant_Temp': Engine_Coolant_Temp,
+            'Engine_Rpm': Engine_Rpm,
+            'Speed': Speed,
+            'Mafr': Mafr,
+            'Road_Type': Road_Type
+        }
     }
+    return row
 
 currentTrip = {
     'start': {},
     'trip_record': [],
     'end': {},
 }
-allTrips = []
+
+trips_all = []
+count = 0
         
 with open('octo-sample.csv', newline='') as csvfile:
     filereader = csv.reader(csvfile, delimiter=';')    
@@ -182,15 +188,35 @@ with open('octo-sample.csv', newline='') as csvfile:
             if Record_Type == '240':
                 currentTrip['start'] = genStartJson(row)                
             elif Record_Type == '159':
-                currentTrip['trip_record'].append(genDriveJson(row))
+                count = count + 1
+                if count < 5:
+                    currentTrip['trip_record'].append(genDriveJson(row))
             else:
                 currentTrip['end'] = genEndJson(row)
-                allTrips.append(json.dump(currentTrip))
+                trips_all.append(currentTrip)
                 currentTrip = {
                     'start': {},
                     'trip_record': [],
                     'end': {},
                 }
+finalJson = {
+    'trips_all': trips_all
+}                  
+
+    # for item in allTrips:
+    #     q = 0
+    #     if q == 0:
+    #         q = 1                
+    #     with open('driveData.json', 'w') as data_file:
+    #         json.dump(item, data_file)
+    #         data_file.close
+                 
+with open('driveData.json', 'w') as data_file:          
+    json.dump(finalJson, data_file)
+    data_file.close
+
+  
+
                 
         # IMEI = row[0]
         # VIN = row[1]
